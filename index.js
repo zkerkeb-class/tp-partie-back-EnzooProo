@@ -2,6 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import pokemon from './schema/pokemon.js';
+import team from './schema/team.js';
 
 import './connect.js';
 
@@ -117,6 +118,43 @@ app.delete('/pokemons/:id', async (req, res) => {
         }
     } catch (error) {
         res.status(500).send(error.message);
+    }
+});
+
+// TEAMS ROUTES
+
+// GET all teams
+app.get('/teams', async (req, res) => {
+    try {
+        const teams = await team.find().populate('members');
+        res.json(teams);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+// GET team by ID
+app.get('/teams/:id', async (req, res) => {
+    try {
+        const t = await team.findById(req.params.id).populate('members');
+        if (t) {
+            res.json(t);
+        } else {
+            res.status(404).send('Team not found');
+        }
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+// POST Create a team
+app.post('/teams', async (req, res) => {
+    try {
+        const newTeam = new team(req.body);
+        await newTeam.save();
+        res.status(201).json(newTeam);
+    } catch (error) {
+        res.status(400).send(error.message);
     }
 });
 
